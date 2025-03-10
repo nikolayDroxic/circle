@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 const Circle = () => {
   const startOfWeek = new Date("2025-03-10T09:00:00").getTime();
   const targetDate = new Date("2025-03-14T18:00:00").getTime();
   const totalDuration = targetDate - startOfWeek;
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   const [progress, setProgress] = useState(100);
   const [timeLeft, setTimeLeft] = useState(() =>
@@ -27,20 +29,72 @@ const Circle = () => {
       if (remainingTime <= 0) {
         clearInterval(interval);
       }
-    }, 1000); // Update every second
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [targetDate, totalDuration]);
 
-  function formatTime(ms: any) {
+  function formatTime(ms: number) {
+    if (ms <= 0) {
+      setIsTimeUp(true);
+      return;
+    }
+
     const totalSeconds = Math.floor(ms / 1000);
-    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
-      2,
-      "0"
-    );
-    const seconds = String(totalSeconds % 60).padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) {
+      return (
+        <>
+          <div>
+            {days} <p>days</p>
+          </div>
+          <div>
+            {hours} <p>hours</p>
+          </div>{" "}
+          <div>
+            {minutes} <p>mins</p>
+          </div>{" "}
+          <div>
+            {seconds} <p>seconds</p>
+          </div>
+        </>
+      );
+    } else if (hours > 0) {
+      return (
+        <>
+          <div>
+            {hours} <p>hours</p>
+          </div>{" "}
+          <div>
+            {minutes} <p>mins</p>
+          </div>{" "}
+          <div>
+            {seconds} <p>seconds</p>
+          </div>
+        </>
+      );
+    } else if (minutes > 0) {
+      return (
+        <>
+          <div>
+            {minutes} <p>mins</p>
+          </div>{" "}
+          <div>
+            {seconds} <p>seconds</p>
+          </div>
+        </>
+      );
+    } else {
+      return (
+        <div>
+          {seconds} <p>seconds</p>
+        </div>
+      );
+    }
   }
 
   const radius = 360;
@@ -53,41 +107,61 @@ const Circle = () => {
   const c = viewBox / 2;
 
   return (
-    <div className="wrapper">
-      <svg
-        viewBox={`0 0 ${viewBox} ${viewBox}`}
-        xmlns="http://www.w3.org/2000/svg"
-        width={radius}
-        height={radius}
-      >
-        <circle
-          className="complete"
-          cx={c}
-          cy={c}
-          fill="none"
-          r={radius}
-          strokeWidth={strokeWidth}
-          stroke="red"
-          strokeDasharray={`${completedLength} ${totalCircumference}`}
-          transform={`rotate(120 ${c} ${c})`}
+    <>
+      {!isTimeUp && (
+        <div className="wrapper">
+          <svg
+            viewBox={`0 0 ${viewBox} ${viewBox}`}
+            width={radius}
+            height={radius}
+          >
+            <circle
+              cx={c}
+              cy={c}
+              fill="none"
+              r={radius}
+              strokeWidth={strokeWidth}
+              stroke="red"
+              strokeDasharray={`${completedLength} ${totalCircumference}`}
+              transform={`rotate(120 ${c} ${c})`}
+            />
+            {progress < 100 && (
+              <circle
+                className="uncomplete"
+                cx={c}
+                cy={c}
+                fill="none"
+                r={radius}
+                strokeWidth={strokeWidth}
+                stroke="grey"
+                strokeDasharray={`${uncompletedLength} ${totalCircumference}`}
+                strokeDashoffset={-(completedLength + radius / 2)}
+                transform={`rotate(90 ${c} ${c})`}
+              />
+            )}
+          </svg>
+          <div className="time-wrapper">{timeLeft}</div>
+        </div>
+      )}
+      {isTimeUp ? (
+        <Image
+          src="/Rangel.jpeg"
+          width={768}
+          height={1024}
+          alt="Picture of the author"
         />
-        {progress < 100 && (
-          <circle
-            className="uncomplete"
-            cx={c}
-            cy={c}
-            fill="none"
-            r={radius}
-            strokeWidth={strokeWidth}
-            stroke="grey"
-            strokeDasharray={`${uncompletedLength} ${totalCircumference}`}
-            strokeDashoffset={-(completedLength + radius / 2)}
-            transform={`rotate(90 ${c} ${c})`}
-          />
-        )}
-      </svg>
-      <p className="time">{timeLeft} </p>
-    </div>
+      ) : (
+        <iframe
+          width="768"
+          height="568"
+          src="https://www.youtube.com/embed/iEVqZv_Zjcw"
+          title="Kontrol - Nai-Shtastlivia Den (Official Video)"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        ></iframe>
+      )}
+    </>
   );
 };
 
