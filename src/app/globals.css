@@ -1,0 +1,18 @@
+body {
+  display: grid;
+  place-items: center;
+}
+
+.wrapper {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.time {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    margin: 0;
+}
